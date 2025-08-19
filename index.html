@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Device Registration</title>
+  <script src="https://openfpcdn.io/fingerprintjs/v3"></script>
+</head>
+<body>
+  <h2>Register Your Device</h2>
+  <form id="registerForm">
+    <label>Employee Name:</label><br>
+    <input type="text" id="name" required><br><br>
+    <input type="submit" value="Register Device">
+  </form>
+  <p id="status"></p>
+
+  <script>
+    let deviceId = "";
+
+    FingerprintJS.load().then(fp => {
+      fp.get().then(result => {
+        deviceId = result.visitorId;
+      });
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const res = await fetch("http://automation.ranklarge.com:5678/webhook/4c7f46ed-cc74-4c8c-85ef-5305fec60d3f", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, deviceId })
+      });
+      const text = await res.text();
+      document.getElementById('status').innerText = text;
+    });
+  </script>
+</body>
+</html>
